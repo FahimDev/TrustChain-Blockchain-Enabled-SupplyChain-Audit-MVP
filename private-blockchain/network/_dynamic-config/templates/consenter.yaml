@@ -1,0 +1,4 @@
+          - Host: ${ORDERER_NAME_LC}.${DOMAIN}
+            Port: ${PORT}
+            ClientTLSCert: ../../../organizations/ordererOrganizations/${DOMAIN}/orderers/${ORDERER_NAME_LC}.${DOMAIN}/tls/server.crt
+            ServerTLSCert: ../../../organizations/ordererOrganizations/${DOMAIN}/orderers/${ORDERER_NAME_LC}.${DOMAIN}/tls/server.crt

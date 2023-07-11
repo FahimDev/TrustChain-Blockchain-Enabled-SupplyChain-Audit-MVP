@@ -1,0 +1,49 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+version: '2'
+
+volumes:
+  ${ORDERER_NAME}.${DOMAIN_ADDRESS}:
+
+networks:
+  ${NETWORK_NAME}:
+    name: ${NETWORK_NAME}
+
+services:
+  ${ORDERER_NAME}.${DOMAIN_ADDRESS}:
+    container_name: ${ORDERER_NAME}.${DOMAIN_ADDRESS}
+    image: hyperledger/fabric-orderer:latest
+    environment:
+      - FABRIC_LOGGING_SPEC=INFO
+      - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
+      - ORDERER_GENERAL_LISTENPORT=${ORDERER_LISTEN_PORT}
+      - ORDERER_GENERAL_GENESISMETHOD=file
+      - ORDERER_GENERAL_GENESISFILE=/var/hyperledger/orderer/orderer.genesis.block
+      - ORDERER_GENERAL_LOCALMSPID=${ORDERER_MSP_ID}
+      - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
+      # - ORDERER_OPERATIONS_LISTENADDRESS=${ORDERER_NAME}.${DOMAIN_ADDRESS}:${ORDERER_OPERATION_LISTEN_PORT}
+      # enabled TLS
+      - ORDERER_GENERAL_TLS_ENABLED=true
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+      # - ORDERER_KAFKA_TOPIC_REPLICATIONFACTOR=1
+      # - ORDERER_KAFKA_VERBOSE=true
+      - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric
+    command: orderer
+    volumes:
+        - ../../organizations/system-genesis-block/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
+        - ../../organizations/ordererOrganizations/${DOMAIN_ADDRESS}/orderers/${ORDERER_NAME}.${DOMAIN_ADDRESS}/msp:/var/hyperledger/orderer/msp
+        - ../../organizations/ordererOrganizations/${DOMAIN_ADDRESS}/orderers/${ORDERER_NAME}.${DOMAIN_ADDRESS}/tls/:/var/hyperledger/orderer/tls
+        - ${ORDERER_NAME}.${DOMAIN_ADDRESS}:/var/hyperledger/production/orderer
+    ports:
+      - ${ORDERER_LISTEN_PORT}:${ORDERER_LISTEN_PORT}
+      - ${ORDERER_OPERATION_LISTEN_PORT}:${ORDERER_OPERATION_LISTEN_PORT}
+    networks:
+      - ${NETWORK_NAME}

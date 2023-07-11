@@ -1,0 +1,29 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+version: '2'
+
+networks:
+  ${NETWORK_NAME}:
+    name: ${NETWORK_NAME}
+
+services:
+
+  ca_${ORDERER_NAME}:
+    image: hyperledger/fabric-ca:latest
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=${ORDERER_CA_NAME}
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_PORT=${CA_CORE_ORDERER_PORT}
+      - FABRIC_CA_SERVER_OPERATIONS_LISTENADDRESS=0.0.0.0:${CA_CORE_ORDERER_LISTEN_PORT}
+    ports:
+      - "${CA_CORE_ORDERER_PORT}:${CA_CORE_ORDERER_PORT}"
+      - "${CA_CORE_ORDERER_LISTEN_PORT}:${CA_CORE_ORDERER_LISTEN_PORT}"
+    command: sh -c 'fabric-ca-server start -b ${CA_USER}:${CA_PWD} -d'
+    volumes:
+      - ../../organizations/ordererOrganizations/${DOMAIN_ADDRESS}/ca-temp/ordererOrg:/etc/hyperledger/fabric-ca-server
+    container_name: ca_${ORDERER_NAME}
+    networks:
+      - ${NETWORK_NAME}
