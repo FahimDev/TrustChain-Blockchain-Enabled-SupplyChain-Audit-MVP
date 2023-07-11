@@ -1,0 +1,1 @@
+Error: failed to read chaincode package at 'fabcar.tar.gz': open fabcar.tar.gz: no such file or directory

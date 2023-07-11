@@ -1,0 +1,34 @@
+version: '2'
+
+networks:
+  fabric_test:
+    name: fabric_test
+
+volumes:
+  orderer.example.com:
+
+services:
+  orderer.example.com:
+    image: hyperledger/fabric-orderer:2.2
+    container_name: orderer.example.com
+    command: orderer
+    environment:
+      - FABRIC_LOGGING_SPEC=INFO
+      - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
+      - ORDERER_GENERAL_LISTENPORT=7050
+      - ORDERER_GENERAL_GENESISMETHOD=file
+      - ORDERER_GENERAL_GENESISFILE=/var/hyperledger/orderer/orderer.genesis.block
+      - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
+      - ORDERER_GENERAL_LOCALMSPDIR=/crypto/msp
+      - ORDERER_GENERAL_TLS_ENABLED=true
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/crypto/tls/server.key
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/crypto/tls/server.crt
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/crypto/tls/ca.crt]
+    volumes:
+      - ../organizations/ordererOrganizations/example.com/orderers/orderer.example.com/:/crypto/
+      - ../system-genesis-block/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
+      - orderer.example.com:/var/hyperledger/production/orderer
+    ports:
+      - 7050:7050
+    networks:
+      - fabric_test

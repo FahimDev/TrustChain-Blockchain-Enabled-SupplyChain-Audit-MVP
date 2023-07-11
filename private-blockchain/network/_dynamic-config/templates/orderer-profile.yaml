@@ -1,0 +1,8 @@
+    ${NAME}:
+        <<: *ChannelDefaults
+        Orderer:
+            <<: *OrdererDefaults
+            OrdererType: etcdraft
+            Organizations:
+        Consortiums:
+

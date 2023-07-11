@@ -1,0 +1,8 @@
+    ${NAME}:
+            Consortium: ${CONSORTIUM}
+            <<: *ChannelDefaults
+            Application:
+                <<: *ApplicationDefaults
+                Organizations:
+                Capabilities:
+                    <<: *ApplicationCapabilities

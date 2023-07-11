@@ -1,0 +1,21 @@
+    - &${ORDERER_NAME}Org
+        Name: ${ORDERER_NAME}Org
+        SkipAsForeign: ${SAF}
+        ID: ${ORDERER_NAME}MSP
+        MSPDir: ../../../organizations/ordererOrganizations/${DOMAIN}/msp
+        Policies: &${ORDERER_NAME}OrgPolicies
+            Readers:
+                Type: Signature
+                Rule: "OR('${ORDERER_NAME}MSP.member')"
+            Writers:
+                Type: Signature
+                Rule: "OR('${ORDERER_NAME}MSP.member')"
+            Admins:
+                Type: Signature
+                Rule: "OR('${ORDERER_NAME}MSP.admin')"
+            # Endorsement:
+            #     Type: Signature
+            #     Rule: "OR('${ORDERER_NAME}MSP.peer')"
+
+        OrdererEndpoints:
+            - ${ORDERER_NAME_LC}.${DOMAIN}:${ORDERER_LISTEN_PORT}
