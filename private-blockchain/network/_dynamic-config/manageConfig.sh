@@ -54,7 +54,7 @@ function yaml_channel_profile {
 function generatePeerOrgs {
     for i in "${!ORGS[@]}"; do 
         ORG_NAME="${ORGS[$i]}"
-        DOMAIN="${DOMAINS[$i]}"
+        DOMAIN="${ORG_DOMAINS[$i]}"
         echo "$(yaml_org $ORG_NAME $DOMAIN)" >> configtx.yaml
     done
 }
@@ -63,7 +63,7 @@ function generateOrdererOrgs {
     SAF=false
     for i in "${!ORDERERS[@]}"; do 
         ORDERER_NAME="${ORDERERS[$i]}"
-        DOMAIN="${DOMAINS[$i]}"
+        DOMAIN="${ORDERER_DOMAINS[$i]}"
         echo "$(yaml_orderer_org $ORDERER_NAME $DOMAIN $SAF)" >> configtx.yaml
     done
 }
@@ -74,7 +74,7 @@ function generateOrderAddresses {
     for i in "${!ORDERERS[@]}"; do
         PORT=$(($START_PORT + (1000 * $i)))
         ORDERER_NAME_LC=`echo "${ORDERERS[$i],,}"`
-        STR="${STR}      - ${ORDERER_NAME_LC}.${DOMAINS[$i]}:${PORT}\n"
+        STR="${STR}      - ${ORDERER_NAME_LC}.${ORDERER_DOMAINS[$i]}:${PORT}\n"
     done
     printf "$(sed "/Addresses:/a $STR" configtx.yaml)" > configtx.yaml
 }
@@ -84,7 +84,7 @@ function generateOrderConsenters {
     START_PORT=7050
     for i in "${!ORDERERS[@]}"; do
         PORT=$(($START_PORT + (1000 * $i)))
-        DOMAIN="${DOMAINS[$i]}"
+        DOMAIN="${ORDERER_DOMAINS[$i]}"
         ORDERER_NAME="${ORDERERS[$i]}"
         STR="${STR}$(echo "$(yaml_consenter $ORDERER_NAME $DOMAIN $PORT)")"
         STR="${STR}"$'\n'
@@ -192,11 +192,6 @@ function generateProfiles {
     newLine
     generateChannelProfile $NAME $CONSORTIUM ORGS
 }
-
-
-ORDERERS=( "${ORDERER_CAP_NAME}" )
-ORGS=(Teq Fardia)
-DOMAINS=("brainstation23.com" "brainstation23.com")
 
 truncate -s 0 configtx.yaml
 

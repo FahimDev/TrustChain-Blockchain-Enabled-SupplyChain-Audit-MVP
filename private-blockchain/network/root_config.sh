@@ -1,5 +1,7 @@
 NETWORK_NAME="fabric_test"
 ORGS=(Manufacturer Inventory)
+ORDERERS=("Orderer");
+ORDERER_DOMAINS=("brainstation23.com");
 ORG_DOMAINS=("brainstation23.com" "brainstation23.com")
 CORE_PEER_PORTS=(7051 8051)
 LISTEN_PEER_PORTS=(17051 18051)
@@ -53,8 +55,8 @@ ORDERER_ADMIN_PWD="ordererAdminpw"
 
 # Chaincode
 
-CC_NAME="fabcar"
-CC_SRC_PATH=${PWD}/fabcar
+CC_NAME="trustchain"
+CC_SRC_PATH=${PWD}/trustchain
 CC_RUNTIME_LANGUAGE="node"
 CC_VERSION="1.0"
 CC_SEQUENCE=1
