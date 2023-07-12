@@ -1,6 +1,7 @@
 /** @type import('hardhat/config').HardhatUserConfig */
 
 require("@nomiclabs/hardhat-waffle");
+require("@nomiclabs/hardhat-etherscan");
 require("dotenv").config();
 
 
@@ -24,4 +25,8 @@ module.exports = {
       url: `${process.env.GOERLI_ENDPOINT}/${process.env.ALCHEMY_API_KEY}`,
       accounts: [`0x${process.env.WALLET_PRIVATE_KEY}`],
     },
+  // https://hardhat.org/hardhat-runner/plugins/nomiclabs-hardhat-etherscan
+  etherscan: {
+    apiKey: process.env.ETHERSCAN_API_KEY,
+  },
 };
