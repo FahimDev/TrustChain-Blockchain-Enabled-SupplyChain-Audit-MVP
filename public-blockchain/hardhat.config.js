@@ -39,6 +39,11 @@ module.exports = {
       url: `${process.env.GOERLI_ENDPOINT}/${process.env.ALCHEMY_API_KEY}`,
       accounts: [`0x${process.env.WALLET_PRIVATE_KEY}`],
     },
+    mumbai: {
+      url: `${process.env.MUMBAI_ENDPOINT}/${process.env.MUMBAI_API_KEY}`,
+      gasPrice: 50000000000,
+      accounts: [`0x${process.env.WALLET_PRIVATE_KEY}`],
+    },
   // https://hardhat.org/hardhat-runner/plugins/nomiclabs-hardhat-etherscan
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY,
