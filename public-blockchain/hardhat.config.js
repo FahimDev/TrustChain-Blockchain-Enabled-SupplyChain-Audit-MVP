@@ -6,7 +6,21 @@ require("dotenv").config();
 
 
 module.exports = {
-  solidity: "0.8.18",
+  solidity: {
+    compilers: [
+      {
+        version: "0.8.18",
+
+        settings: {
+          optimizer: {
+            enabled: true,
+
+            runs: 1000,
+          },
+        },
+      },
+    ],
+  },
   networks: {
     // Ref: https://trufflesuite.com/docs/truffle/getting-started/using-the-truffle-dashboard/#usage-with-non-truffle-tooling
     ganache: {

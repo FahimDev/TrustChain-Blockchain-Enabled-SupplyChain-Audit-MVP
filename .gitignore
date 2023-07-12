@@ -598,3 +598,5 @@ testeth
 node_modules
 bin_output
 logs
+public-blockchain/artifacts/
+public-blockchain/cache/
