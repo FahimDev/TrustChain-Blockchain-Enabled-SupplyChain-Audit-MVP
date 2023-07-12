@@ -32,8 +32,7 @@ module.exports = {
        */
       url: `${process.env.GANACHE_URL}:${process.env.GANACHE_PORT}`,
       accounts: [`0x${process.env.GANACHE_PRIVATE_KEY}`],
-    },    
-  },
+    },
     // Ref: https://hardhat.org/tutorial/deploying-to-a-live-network
     goerli: {
       url: `${process.env.GOERLI_ENDPOINT}/${process.env.ALCHEMY_API_KEY}`,
@@ -43,9 +42,16 @@ module.exports = {
       url: `${process.env.MUMBAI_ENDPOINT}/${process.env.MUMBAI_API_KEY}`,
       gasPrice: 50000000000,
       accounts: [`0x${process.env.WALLET_PRIVATE_KEY}`],
-    },
+    },    
+  },
   // https://hardhat.org/hardhat-runner/plugins/nomiclabs-hardhat-etherscan
+  // https://coinsbench.com/verify-smart-contract-on-polygonscan-using-hardhat-9b8331dbd888
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY,
+    apiKey: {
+      // Ethereum
+      goerli: process.env.ETHERSCAN_API_KEY,
+      // Polygon
+      polygonMumbai: process.env.POLYGONSCAN_MUMBAI_API_KEY,
+    }
   },
 };
