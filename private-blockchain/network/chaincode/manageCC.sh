@@ -24,10 +24,10 @@ function installChaincode {
     
     titleln "Installing chaincode on peer0.${pORG}"
 
-    if [ ! -d "fabcar/node_modules" ]; then
+    if [ ! -d "trustchain/node_modules" ]; then
         titleln "Chaincode's node modules not found, Performing 'npm install'"
         
-	    cd fabcar && npm install && npm run build && cd -
+	    cd trustchain && npm install && npm run build && cd -
     fi
 
     set -x
@@ -85,17 +85,19 @@ function checkCommitReadiness {
 }
 
 function commitChaincodeDefinition {
-    pORG=$1
+    parsePeerConnectionParameters
+    res=$?
+    verifyResult $res "Invoke transaction failed on channel '$CHANNEL_NAME' due to uneven number of peer and org parameters "
 
-    titleln "Committing chaincode definition on peer0.${pORG} on channel '$CHANNEL_NAME'"
+    titleln "------>$PEER_CONN_PARMS"
 
     set -x
-    peer lifecycle chaincode commit -o ${ORDERER_NODE_ADDRESS} --ordererTLSHostnameOverride ${ORDERER_ADDRESS} --tls --cafile $ORDERER_CA --channelID $CHANNEL_NAME --name ${CC_NAME} --peerAddresses ${CORE_PEER_ADDRESS} --tlsRootCertFiles ${CORE_PEER_TLS_ROOTCERT_FILE} --version ${CC_VERSION} --sequence ${CC_SEQUENCE} ${INIT_REQUIRED} >&log.txt
+    peer lifecycle chaincode commit -o ${ORDERER_NODE_ADDRESS} --ordererTLSHostnameOverride ${ORDERER_ADDRESS} --tls --cafile $ORDERER_CA --channelID $CHANNEL_NAME --name ${CC_NAME} $PEER_CONN_PARMS --version ${CC_VERSION} --sequence ${CC_SEQUENCE} ${INIT_REQUIRED} >&log.txt
     res=$?
-    { set +x; } 2>/dev/null
+    set +x
     cat log.txt
-    verifyResult $res "Chaincode definition commit failed on peer0.${pORG} on channel '$CHANNEL_NAME' failed"
-    successln "Chaincode definition committed on peer0.${pORG} channel '$CHANNEL_NAME'"
+    verifyResult $res "Chaincode definition commit failed on peer0 of org${ORG} on channel '$CHANNEL_NAME' failed"
+    successln "===================== Chaincode definition committed on channel '$CHANNEL_NAME' ===================== "
 }
 
 function queryChaincodeDefinitionCommitted {
@@ -115,77 +117,107 @@ function queryChaincodeDefinitionCommitted {
 }
 
 function invokeChaincodeINIT {
-    pORG=$1
+    parsePeerConnectionParameters 
+    res=$?
+    verifyResult $res "Invoke transaction failed on channel '$CHANNEL_NAME' due to uneven number of peer and org parameters "
 
     titleln "Invoking INIT function of chaincode"
     set -x
     fcn_call='{"function":"'${CC_INIT_FCN}'","Args":[]}'
     infoln "invoke fcn call:${fcn_call}"
-    peer chaincode invoke -o ${ORDERER_NODE_ADDRESS} --ordererTLSHostnameOverride ${ORDERER_ADDRESS} --tls --cafile $ORDERER_CA -C $CHANNEL_NAME -n ${CC_NAME} --peerAddresses ${CORE_PEER_ADDRESS} --tlsRootCertFiles ${CORE_PEER_TLS_ROOTCERT_FILE} --isInit -c ${fcn_call} >&log.txt
+    peer chaincode invoke -o ${ORDERER_NODE_ADDRESS} --ordererTLSHostnameOverride ${ORDERER_ADDRESS} --tls --cafile $ORDERER_CA -C $CHANNEL_NAME -n ${CC_NAME} $PEER_CONN_PARMS --isInit -c ${fcn_call} >&log.txt
     res=$?
-    { set +x; } 2>/dev/null
+    set +x
     cat log.txt
-    verifyResult $res "Invoke execution on peer0.${pORG} failed "
-    successln "Invoke transaction successful on ${pORG} on channel '$CHANNEL_NAME'"
+    verifyResult $res "Invoke execution on $PEERS failed "
+    successln "===================== Invoke transaction successful on $PEERS on channel '$CHANNEL_NAME' ===================== "
 }
 
 function setOrgGlobal {
     _ORG=$1
     _DOMAIN=$2
     _PEER=$3
-    _ORG_LC=`echo "${i,,}"`
+    _PORT=$4
+    _ORG_LC=`echo "${1,,}"`
 
     export CORE_PEER_LOCALMSPID="${_ORG}MSP"
-    export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/../organizations/peerOrganizations/${_ORG_LC}.${DOMAIN}/peers/peer${_PEER}.${_ORG_LC}.${_DOMAIN}/tls/ca.crt
-    export CORE_PEER_MSPCONFIGPATH=${PWD}/../organizations/peerOrganizations/${_ORG_LC}.${DOMAIN}/users/Admin@${_ORG_LC}.${_DOMAIN}/msp
+    export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/../organizations/peerOrganizations/${_ORG_LC}.${_DOMAIN}/peers/peer${_PEER}.${_ORG_LC}.${_DOMAIN}/tls/ca.crt
+    export CORE_PEER_MSPCONFIGPATH=${PWD}/../organizations/peerOrganizations/${_ORG_LC}.${_DOMAIN}/users/Admin@${_ORG_LC}.${_DOMAIN}/msp
+    export CORE_PEER_ADDRESS="localhost:$_PORT"
+}
+
+function parsePeerConnectionParameters {
+    PEER_CONN_PARMS=""
+    PEERS=""
+
+    for i in "${!ORGS[@]}"; do
+        _ORG_NAME_LC=`echo "${ORGS[$i],,}"`
+        _PEER_ADDRESS="localhost:${CORE_PEER_PORTS[$i]}"
+        _PEER0_ORG_CA=${PWD}/../organizations/peerOrganizations/${_ORG_NAME_LC}.${ORG_DOMAINS[$i]}/peers/peer${PEER_COUNT}.${_ORG_NAME_LC}.${ORG_DOMAINS[$i]}/tls/ca.crt
+        setOrgGlobal ${ORGS[$i]} ${ORG_DOMAINS[$i]} $PEER_COUNT ${CORE_PEER_PORTS[$i]}
+
+        PEER="peer0.${_ORG_NAME_LC}"
+        echo "Joy Bangla ${ORGS[$i]}"
+
+        PEERS="$PEERS $PEER"
+        PEER_CONN_PARMS="$PEER_CONN_PARMS --peerAddresses $_PEER_ADDRESS"
+        TLSINFO=$(eval echo "--tlsRootCertFiles \$_PEER0_ORG_CA")
+        PEER_CONN_PARMS="$PEER_CONN_PARMS $TLSINFO"
+    done
+    
+    PEERS="$(echo -e "$PEERS" | sed -e 's/^[[:space:]]*//')"
 }
 
 function init {
     ORDERER_CA=${PWD}/../organizations/ordererOrganizations/${DOMAIN_ADDRESS}/orderers/${ORDERER_NAME}.${DOMAIN_ADDRESS}/msp/tlscacerts/tlsca.${DOMAIN_ADDRESS}-cert.pem
-
+    
+    # Package Chaincode
     packageChaincode
+    
+    # Install Chaincode
     for i in "${!ORGS[@]}"; do
         _ORG_NAME_LC=`echo "${ORGS[$i],,}"`
-        setOrgGlobal ${ORGS[$i]} ${ORG_DOMAINS[$i]} $PEER_COUNT
+        setOrgGlobal ${ORGS[$i]} ${ORG_DOMAINS[$i]} $PEER_COUNT ${CORE_PEER_PORTS[$i]}
 
         installChaincode $_ORG_NAME_LC
     done
 
+    # Query Chaincode is Installed
     for i in "${!ORGS[@]}"; do
         _ORG_NAME_LC=`echo "${ORGS[$i],,}"`
-        setOrgGlobal ${ORGS[$i]} ${ORG_DOMAINS[$i]} $PEER_COUNT
+        setOrgGlobal ${ORGS[$i]} ${ORG_DOMAINS[$i]} $PEER_COUNT ${CORE_PEER_PORTS[$i]}
 
         queryChaincodeInstalled $_ORG_NAME_LC
+    done
+
+    # Approve for Org & check commit readiness for all orgs
+    for i in "${!ORGS[@]}"; do
+        _ORG_NAME_LC=`echo "${ORGS[$i],,}"`
+        setOrgGlobal ${ORGS[$i]} ${ORG_DOMAINS[$i]} $PEER_COUNT ${CORE_PEER_PORTS[$i]}
+
         approveForMyOrg $_ORG_NAME_LC
+
+        for i in "${!ORGS[@]}"; do
+            _ORG_NAME_LC=`echo "${ORGS[$i],,}"`
+            setOrgGlobal ${ORGS[$i]} ${ORG_DOMAINS[$i]} $PEER_COUNT ${CORE_PEER_PORTS[$i]}
+
+            checkCommitReadiness $_ORG_NAME_LC
+        done
     done
 
+    # Commit Chaincode Defination
+    commitChaincodeDefinition 
+
+    # Query Chaincode Defination Committed
     for i in "${!ORGS[@]}"; do
         _ORG_NAME_LC=`echo "${ORGS[$i],,}"`
-        setOrgGlobal ${ORGS[$i]} ${ORG_DOMAINS[$i]} $PEER_COUNT
-
-        checkCommitReadiness $_ORG_NAME_LC
-    done
-
-    for i in "${!ORGS[@]}"; do
-        _ORG_NAME_LC=`echo "${ORGS[$i],,}"`
-        setOrgGlobal ${ORGS[$i]} ${ORG_DOMAINS[$i]} $PEER_COUNT
-
-        commitChaincodeDefinition $_ORG_NAME_LC
-    done
-
-    for i in "${!ORGS[@]}"; do
-        _ORG_NAME_LC=`echo "${ORGS[$i],,}"`
-        setOrgGlobal ${ORGS[$i]} ${ORG_DOMAINS[$i]} $PEER_COUNT
+        setOrgGlobal ${ORGS[$i]} ${ORG_DOMAINS[$i]} $PEER_COUNT ${CORE_PEER_PORTS[$i]}
 
         queryChaincodeDefinitionCommitted $_ORG_NAME_LC
     done
 
-    for i in "${!ORGS[@]}"; do
-        _ORG_NAME_LC=`echo "${ORGS[$i],,}"`
-        setOrgGlobal ${ORGS[$i]} ${ORG_DOMAINS[$i]} $PEER_COUNT
-
-        invokeChaincodeINIT $_ORG_NAME_LC
-    done
+    # Invoke INIT function of chaincode
+    invokeChaincodeINIT 
 }
 
 function clean {

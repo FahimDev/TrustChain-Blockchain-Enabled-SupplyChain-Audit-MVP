@@ -28,14 +28,6 @@ function networkUp {
         ./manageOrg.sh up
     popd
 
-    # pushd orderer
-    #     echo "Currently at ${PWD}"
-    #     ./scripts/setup-env.sh
-    #     ./scripts/create-orderer.sh
-    #     ./scripts/generate-system-genesis-block.sh
-    #     ./scripts/start-orderer.sh
-    # popd
-
     pushd orderer-config
         echo "Currently at ${PWD}"
         ./manageOrderer.sh generate
@@ -47,10 +39,10 @@ function networkUp {
         ./manageChannel.sh init
     popd
 
-    # pushd chaincode
-    #     echo "Currently at ${PWD}"
-    #     ./manageCC.sh init
-    # popd
+    pushd chaincode
+        echo "Currently at ${PWD}"
+        ./manageCC.sh init
+    popd
 }
 
 function networkDown {

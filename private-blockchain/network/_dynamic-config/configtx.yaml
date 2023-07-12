@@ -14,46 +14,42 @@ Organizations:
             Admins:
                 Type: Signature
                 Rule: "OR('OrdererMSP.admin')"
-            # Endorsement:
-            #     Type: Signature
-            #     Rule: "OR('OrdererMSP.peer')"
-
         OrdererEndpoints:
             - orderer.brainstation23.com:7050
-    - &Teq
-        Name: TeqMSP
-        ID: TeqMSP
-        MSPDir: ../../../organizations/peerOrganizations/teq.brainstation23.com/msp
+    - &Manufacturer
+        Name: ManufacturerMSP
+        ID: ManufacturerMSP
+        MSPDir: ../../../organizations/peerOrganizations/manufacturer.brainstation23.com/msp
         Policies:
             Readers:
                 Type: Signature
-                Rule: "OR('TeqMSP.admin', 'TeqMSP.peer', 'TeqMSP.client')"
+                Rule: "OR('ManufacturerMSP.admin', 'ManufacturerMSP.peer', 'ManufacturerMSP.client')"
             Writers:
                 Type: Signature
-                Rule: "OR('TeqMSP.admin', 'TeqMSP.client')"
+                Rule: "OR('ManufacturerMSP.admin', 'ManufacturerMSP.client')"
             Admins:
                 Type: Signature
-                Rule: "OR('TeqMSP.admin')"
+                Rule: "OR('ManufacturerMSP.admin')"
             Endorsement:
                 Type: Signature
-                Rule: "OR('TeqMSP.peer')"
-    - &Fardia
-        Name: FardiaMSP
-        ID: FardiaMSP
-        MSPDir: ../../../organizations/peerOrganizations/fardia.brainstation23.com/msp
+                Rule: "OR('ManufacturerMSP.peer')"
+    - &Inventory
+        Name: InventoryMSP
+        ID: InventoryMSP
+        MSPDir: ../../../organizations/peerOrganizations/inventory.brainstation23.com/msp
         Policies:
             Readers:
                 Type: Signature
-                Rule: "OR('FardiaMSP.admin', 'FardiaMSP.peer', 'FardiaMSP.client')"
+                Rule: "OR('InventoryMSP.admin', 'InventoryMSP.peer', 'InventoryMSP.client')"
             Writers:
                 Type: Signature
-                Rule: "OR('FardiaMSP.admin', 'FardiaMSP.client')"
+                Rule: "OR('InventoryMSP.admin', 'InventoryMSP.client')"
             Admins:
                 Type: Signature
-                Rule: "OR('FardiaMSP.admin')"
+                Rule: "OR('InventoryMSP.admin')"
             Endorsement:
                 Type: Signature
-                Rule: "OR('FardiaMSP.peer')"
+                Rule: "OR('InventoryMSP.peer')"
 
 Capabilities:
     Channel: &ChannelCapabilities
@@ -151,16 +147,16 @@ Profiles:
         Consortiums:
             BasicConsortium:
                 Organizations:
-                    - <<: *Teq
-                    - <<: *Fardia
+                    - <<: *Manufacturer
+                    - <<: *Inventory
     BasicChannel:
             Consortium: BasicConsortium
             <<: *ChannelDefaults
             Application:
                 <<: *ApplicationDefaults
                 Organizations:
-                    - *Teq
-                    - *Fardia
+                    - *Manufacturer
+                    - *Inventory
 
                 Capabilities:
                     <<: *ApplicationCapabilities
