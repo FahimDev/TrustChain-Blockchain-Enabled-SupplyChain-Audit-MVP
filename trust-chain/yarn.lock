@@ -1891,6 +1891,11 @@
   "resolved" "https://registry.npmjs.org/dompurify/-/dompurify-2.3.10.tgz"
   "version" "2.3.10"
 
+"dotenv@^16.3.1":
+  "integrity" "sha512-IPzF4w4/Rd94bA9imS68tZBaYyBWSCE47V1RGuMrB94iyTOIEwRmVL2x/4An+6mETpLrKJ5hQkB8W4kFAadeIQ=="
+  "resolved" "https://registry.npmjs.org/dotenv/-/dotenv-16.3.1.tgz"
+  "version" "16.3.1"
+
 "drange@^1.0.2":
   "integrity" "sha512-pYxfDYpued//QpnLIm4Avk7rsNtAtQkUES2cwAYSvD/wd2pKD71gN2Ebj3e7klzXwjocvE8c5vx/1fxwpqmSxA=="
   "resolved" "https://registry.npmjs.org/drange/-/drange-1.1.1.tgz"
