@@ -44,6 +44,10 @@ const TechCardsComponent: NextPage = () => {
               <img src="/card_images/openSea.png" />
               <figcaption>OpenSea</figcaption>
             </figure>
+            <figure className={cardStyles.card}>
+              <img src="/card_images/polygon.jpg" />
+              <figcaption>Polygon</figcaption>
+            </figure>
           </div>
 
           <h2 className="font-mono text-slate-100">
