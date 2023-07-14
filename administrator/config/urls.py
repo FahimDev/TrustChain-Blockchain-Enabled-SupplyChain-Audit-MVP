@@ -18,6 +18,8 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 from rest_framework.routers import DefaultRouter
 
+from django.conf.urls.static import static
+
 from core import urls as core_urls
 from manufacturer import urls as mfg_urls
 from public_blockchain_manager import urls as public_web3_urls
@@ -68,3 +70,5 @@ if settings.DEBUG:
     urlpatterns += [
         path('__debug__/', include(debug_toolbar.urls)),
     ]
+    
+urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT )

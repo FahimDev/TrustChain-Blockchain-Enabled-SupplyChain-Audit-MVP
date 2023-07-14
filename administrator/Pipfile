@@ -13,6 +13,7 @@ drf-yasg = {extras = ["validation"], version = "*"}
 django-environ = "*"
 django-model-utils = "*"
 django-countries = "*"
+pillow = "*"
 
 [dev-packages]
 
