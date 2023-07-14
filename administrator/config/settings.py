@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'django_countries',
     # installed apps
     'core.apps.CoreConfig',
+    'manufacturer.apps.ManufacturerConfig',
     'logistics.apps.LogisticsConfig',
     'exim_service.apps.EximServiceConfig',
     'public_blockchain_manager.apps.PublicBlockchainManagerConfig'

@@ -19,6 +19,7 @@ from django.urls import path, include, re_path
 from rest_framework.routers import DefaultRouter
 
 from core import urls as core_urls
+from manufacturer import urls as mfg_urls
 from public_blockchain_manager import urls as public_web3_urls
 from logistics import urls as logistics_urls
 from exim_service import urls as exim_urls
@@ -50,6 +51,7 @@ urlpatterns = [
     
     path('api/web2/', include([
         path('core/', include(core_urls, namespace='core')),
+        path('manufacturer/', include(mfg_urls, namespace='manufacturer')),
         path('logistics/', include(logistics_urls, namespace='logistics')),
         path('export-import/', include(exim_urls, namespace='exim_service')),
         path('public-web3-manager/', include(public_web3_urls, namespace='public_blockchain_manager')),
