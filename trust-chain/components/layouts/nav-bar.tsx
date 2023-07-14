@@ -232,7 +232,7 @@ const NavBar: NextPage = () => {
             </span>
           </li>
           <li>
-            <a href="#">
+            <a href="https://testnets.opensea.io/collection/trustchain-bs23" target="_blank">
               <i className="bx">
                 <img
                   className="bx icon p-3 invert hover:invert-0"
