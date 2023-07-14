@@ -9,22 +9,18 @@ import fs from "fs"; // JSON FILE SAVING
 const API_KEY = process.env.API_KEY;
 
 // Define an Alchemy Provider
-// const provider = new ethers.providers.AlchemyProvider("mumbai", API_KEY);
 const provider = new ethers.providers.JsonRpcProvider(`${process.env.API_URL}/${process.env.API_KEY}`)
 
 // Create a signer
 const privateKey: any = process.env.WALLET_PRIVATE_KEY;
-const signer = new ethers.Wallet(privateKey, provider);
+const wallet = new ethers.Wallet(privateKey, provider);
 
 // Get contract ABI and address
 const abi = artifacts.abi;
 const contractAddress: any = process.env.CONTRACT_ADDRESS;
 
 // Create a contract instance
-//const myNftContract = new ethers.Contract(contractAddress, abi, signer);
-
-
-const myNftContract = new ethers.Contract(contractAddress, abi, provider)
+const myNftContract = new ethers.Contract(contractAddress, abi, wallet)
 
 type Data = {
   hash: string;
@@ -55,7 +51,7 @@ type Data = {
  *     type: object
  *     required:
  *       - mfg_id
- *       - ownder
+ *       - owner
  *       - meta_url
  *     properties:
  *       mfg_id:
@@ -85,23 +81,16 @@ export default async function mintProductTwin(
   }
   const { mfg_id, owner, meta_url } = req.body;
   try {
-    console.log(mfg_id)
-    console.log(owner)
-    console.log(meta_url)
-    let sample: number = parseInt(mfg_id)
-    console.log("=====>", sample)
-    let nftTxn = await myNftContract.createTwin(sample, owner, meta_url);
-    console.log("FLAG!")
+    let nftTxn = await myNftContract.createTwin(mfg_id, owner, meta_url);
     await nftTxn.wait();
-    console.log(nftTxn)
     console.log(
       `NFT Minted! Check it out at: ${process.env.POLYGONSCAN_MUMBAI}/${nftTxn.hash}`
     );
-    // signV4Saver(
-    //   mfg_id,
-    //   nftTxn.hash,
-    //   `${process.env.POLYGONSCAN_MUMBAI}/${nftTxn.hash}`
-    // );
+    mintRecordSaver(
+      mfg_id,
+      nftTxn.hash,
+      `${process.env.POLYGONSCAN_MUMBAI}/${nftTxn.hash}`
+    );
     res.status(200).json({ hash: nftTxn.hash });
   } catch (err) {
     res.statusCode = 400;
@@ -110,24 +99,24 @@ export default async function mintProductTwin(
   }
 }
 
-// const signV4Saver = async (nft_id: bigint, tx_hash: string, tx_url: string) => {
-//   // json data
-//   let jsonData = {
-//     nft_id: nft_id,
-//     tx_hash: tx_hash,
-//     transaction_url: tx_url,
-//   };
-//   let jsonDataStr = JSON.stringify(jsonData);
-//   fs.writeFile(
-//     `../../../json-log/nft-${nft_id}-mint-txn.json`,
-//     jsonDataStr,
-//     "utf8",
-//     function (err: any) {
-//       if (err) {
-//         console.log("An error occured while writing JSON Object to File.");
-//         return console.log(err);
-//       }
-//       console.log("NFT Minting Transaction has been saved as JSON file.");
-//     }
-//   );
-// };
+const mintRecordSaver = async (nft_id: bigint, tx_hash: string, tx_url: string) => {
+  // json data
+  let jsonData = {
+    nft_id: nft_id,
+    tx_hash: tx_hash,
+    transaction_url: tx_url,
+  };
+  let jsonDataStr = JSON.stringify(jsonData);
+  fs.writeFile(
+    `../json-log/nft-${nft_id}-mint-txn.json`,
+    jsonDataStr,
+    "utf8",
+    function (err: any) {
+      if (err) {
+        console.log("An error occured while writing JSON Object to File.");
+        return console.log(err);
+      }
+      console.log("NFT Minting Transaction has been saved as JSON file.");
+    }
+  );
+};
