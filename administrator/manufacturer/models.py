@@ -26,13 +26,13 @@ class EmployeeDetail(BaseTimeStampedModel):
     certification_title = models.CharField(max_length=50)
     certification_id = models.UUIDField(unique=True, null= True, blank= True, editable=True)
     designation = models.CharField(max_length= 50)
-    employer = models.ForeignKey(ManufacturerDetail, on_delete= models.SET_NULL, null= True, blank= True, related_name= 'employee_employer')
+    employer = models.ForeignKey(ManufacturerDetail, on_delete= models.SET_NULL, null= True, blank= True, related_name= 'employee_manufacturerdetail')
 
     class Meta:
         ordering = ('-id',)
         
     def __str__(self) -> str:
-        return f'{self.name} ⇔ {self.contact_number} | {self.employer}({self.designation})'
+        return f'{self.name} ⇔ {self.designation} | {self.employer}'
     
 
 # Create your models here.
@@ -85,7 +85,7 @@ class ProductDetail(BaseTimeStampedModel):
     mfg_license = models.CharField(max_length=100)
     trait = models.ForeignKey(ProductTrait, on_delete= models.SET_NULL, null= True, blank= True, related_name= 'trait_producttrait')
     manufacturer = models.ForeignKey(ManufacturerDetail, on_delete= models.SET_NULL, null= True, blank= True, related_name= 'product_manufacturer')
-    manufacturing_team = models.ManyToManyField(EmployeeDetail)
+    manufacturing_coordinator = models.ForeignKey(EmployeeDetail, on_delete= models.SET_NULL, null= True, blank= True, related_name= 'product_employeedetail')
     digital_twin = models.BooleanField(default=False)
     
     class Meta:

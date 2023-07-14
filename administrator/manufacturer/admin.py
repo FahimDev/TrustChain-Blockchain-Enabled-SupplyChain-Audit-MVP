@@ -13,12 +13,13 @@ class ManufacturerDetailAdmin(admin.ModelAdmin):
 
 @admin.register(EmployeeDetail)
 class EmployeeDetailAdmin(admin.ModelAdmin):
-    list_display = [field.name for field in EmployeeDetail._meta.get_fields()]
+    list_display = ('name', 'designation', 'certification_title',)
+    # list_display = [field.name for field in EmployeeDetail._meta.get_fields()]
     
 
 @admin.register(ProductDetail)
 class ProductDetailAdmin(admin.ModelAdmin):
-    list_display = ('title',)
+    list_display = ('title', 'mfg_id', 'digital_twin',)
     
 
 @admin.register(ProductTrait)
