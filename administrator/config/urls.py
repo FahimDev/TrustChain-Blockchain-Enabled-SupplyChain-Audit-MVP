@@ -22,6 +22,7 @@ from django.conf.urls.static import static
 
 from core import urls as core_urls
 from manufacturer import urls as mfg_urls
+from inventory import urls as inv_urls
 from public_blockchain_manager import urls as public_web3_urls
 from logistics import urls as logistics_urls
 from exim_service import urls as exim_urls
@@ -58,6 +59,7 @@ urlpatterns = [
         path('core/', include(core_urls, namespace='core')),
         path('manufacturer/', include(mfg_urls, namespace='manufacturer')),
         path('logistics/', include(logistics_urls, namespace='logistics')),
+        path('inventory/', include(inv_urls, namespace='inventory')),
         path('export-import/', include(exim_urls, namespace='exim_service')),
         path('public-web3-manager/', include(public_web3_urls, namespace='public_blockchain_manager')),
     ])),
