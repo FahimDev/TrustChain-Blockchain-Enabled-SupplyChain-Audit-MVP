@@ -12,6 +12,7 @@ class SmartContractDeployment(BaseTimeStampedModel):
     artifact_abi = models.JSONField()
     deployer = models.CharField(max_length=42)
     network = models.URLField(null=True, blank=True)
+    network_title = models.CharField(max_length=20,)
     is_verified = models.BooleanField(default=False)
     is_proxy = models.BooleanField(default=False)
     
