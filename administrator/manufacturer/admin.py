@@ -26,4 +26,4 @@ class ProductDetailAdmin(admin.ModelAdmin):
 
 @admin.register(ProductTrait)
 class ProductTraitAdmin(admin.ModelAdmin):
-    list_display = ('chassis_type',)
+    list_display = ('chassis_type', 'fuel_type', 'seat_number', 'color')
