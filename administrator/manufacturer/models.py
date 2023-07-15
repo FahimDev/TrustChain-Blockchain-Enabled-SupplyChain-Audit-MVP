@@ -79,9 +79,10 @@ class ProductTrait(BaseTimeStampedModel):
 
 class ProductDetail(BaseTimeStampedModel):
     title = models.CharField(max_length=100)
+    image = models.ImageField(upload_to="product", null= True, blank= True, default= "product/image_missing.png") 
     description = models.TextField(max_length=500)
     owner_address = models.CharField(max_length=64)
-    mfg_id = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    mfg_id = models.PositiveBigIntegerField(unique=True)
     mfg_license = models.CharField(max_length=100)
     trait = models.ForeignKey(ProductTrait, on_delete= models.SET_NULL, null= True, blank= True, related_name= 'trait_producttrait')
     manufacturer = models.ForeignKey(ManufacturerDetail, on_delete= models.SET_NULL, null= True, blank= True, related_name= 'product_manufacturer')

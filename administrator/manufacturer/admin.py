@@ -19,7 +19,9 @@ class EmployeeDetailAdmin(admin.ModelAdmin):
 
 @admin.register(ProductDetail)
 class ProductDetailAdmin(admin.ModelAdmin):
-    list_display = ('title', 'mfg_id', 'digital_twin',)
+    def product_image(self, obj):
+        return format_html('<img src="{}" height="50" />'.format(obj.image.url))
+    list_display = ('product_image', 'title', 'mfg_id', 'digital_twin',)
     
 
 @admin.register(ProductTrait)
