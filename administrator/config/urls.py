@@ -34,6 +34,9 @@ from django.conf import settings
 
 router = DefaultRouter()
 
+admin.site.site_header = 'ERP'
+admin.site.site_title = 'Trust Chain Administrator'
+
 schema_view = get_schema_view(
    openapi.Info(
       title="Web 3.0 Application API",
