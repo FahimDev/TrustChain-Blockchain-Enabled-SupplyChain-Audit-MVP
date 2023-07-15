@@ -21,7 +21,9 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <Web3ReactProvider getLibrary={getLibrary}>
       <NavBar />
-      <Component {...pageProps} />
+      <div className="pl-20">
+        <Component {...pageProps} />
+      </div>
     </Web3ReactProvider>
   );
 }

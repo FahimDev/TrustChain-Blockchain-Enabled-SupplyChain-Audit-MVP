@@ -1,7 +1,12 @@
 import type { NextPage } from "next";
 import bannerStyles from "../../styles/Banner.module.css";
 
-const BannerComponent: NextPage = () => {
+interface Props{
+  title: string;
+  subtitle?: string;
+}
+
+const BannerComponent: NextPage<Props> = ({title, subtitle}) => {
   return (
     <div className={bannerStyles.main}>
       <header className={bannerStyles.header_banner_top}>
@@ -10,11 +15,10 @@ const BannerComponent: NextPage = () => {
 
           <div className={bannerStyles.primary_wrapper}>
             <h1 className={bannerStyles.site_title}>
-              <a href="#">Welcome to Trust Chain Dapp</a>
+              <a href="#">{title}</a>
             </h1>
             <div className={bannerStyles.site_tagline}>
-            Global Supply Chain DAO and Ownership manaement in {" "}
-            <code>Blockchain</code>
+              {subtitle}
             </div>
           </div>
         </div>

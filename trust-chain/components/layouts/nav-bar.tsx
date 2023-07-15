@@ -11,6 +11,7 @@ import {
   faSimCard,
   faTowerCell,
   faWallet,
+  faCubes
 } from "@fortawesome/free-solid-svg-icons";
 
 // https://github.com/PatrickAlphaC/nextjs-web3-react-metamask-connect/blob/main/pages/index.js
@@ -117,6 +118,15 @@ const NavBar: NextPage = () => {
               <span className="links_name">Dashboard</span>
             </a>
             <span className="tooltip">Dashboard</span>
+          </li>
+          <li>
+            <a href="/hlf">
+              <i className="bx">
+                <FontAwesomeIcon icon={faCubes} />
+              </i>
+              <span className="links_name">HLF</span>
+            </a>
+            <span className="tooltip">Hyperledger Fabric</span>
           </li>
           {active ? (
             <li onClick={popUpMetaMask}>

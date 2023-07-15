@@ -2,8 +2,6 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
 import styles from "../styles/Home.module.css";
-import { useState, useEffect } from "react";
-import { ethers } from "ethers";
 const ContractAddress = require("../../json-log/deployedContractAddress.json");
 import TechCardsComponent from "../components/dashboard/tech-cards";
 import BannerComponent from "../components/dashboard/banner";
@@ -17,7 +15,7 @@ const Home: NextPage = () => {
         <meta name="description" content="A PoC project of Brain Station 23" />
         <link rel="icon" href="/Brainstation23.ico" />
       </Head>
-      <BannerComponent />
+      <BannerComponent title={"Welcome to Trust Chain Dapp"} subtitle="Global Supply Chain DAO and Ownership manaement in Blockchain" />
       <TechCardsComponent />
       <footer className={styles.footer}>
         <a

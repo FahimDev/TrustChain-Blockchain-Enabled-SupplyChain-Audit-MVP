@@ -10,7 +10,6 @@ const TechCardsComponent: NextPage = () => {
           <h2 className="font-mono text-slate-100">
             <strong>Tools and Tech</strong>
           </h2>
-
           <div className={cardStyles.cards}>
             <figure className={cardStyles.card}>
               <img src="/card_images/ETH.png" />
