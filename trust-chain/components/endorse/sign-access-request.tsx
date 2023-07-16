@@ -1,10 +1,138 @@
 import { faCircleQuestion } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import type { NextPage } from "next";
+import { ethers } from "ethers";
+import { useEffect, useRef, useState } from "react";
+import { useWeb3React } from "@web3-react/core";
 import styles from "../../styles/AccessRequestForm.module.css";
 const ContractAddress = require("../../../json-log/deployedContractAddress.json");
 
 const SignAccessRequestComponent: NextPage = () => {
+  /**
+   * In useState first element can be an object and
+   * the second elementr is a value setter function of that object
+   *  */
+  const [signatures, setSignaturesFun] = useState<any>([]);
+  const { active, library: provider } = useWeb3React();
+  const delay = (ms: number | undefined) =>
+    new Promise((res) => setTimeout(res, ms));
+
+  const SIGNING_DOMAIN_NAME = "TrustChain-LedgerAccess";
+  const SIGNING_DOMAIN_VERSION = "1";
+  const SIGNING_DOMAIN_CHAIN_ID = 5;
+
+  // EIP-721 Data standard
+  const _domain = {
+    name: SIGNING_DOMAIN_NAME,
+    version: SIGNING_DOMAIN_VERSION,
+    verifyingContract: ContractAddress.genesisContract,
+    chainId: SIGNING_DOMAIN_CHAIN_ID,
+  };
+  // EIP-721 Data standard
+  const _domainDataType = [
+    { name: "name", type: "string" },
+    { name: "version", type: "string" },
+    { name: "verifyingContract", type: "address" },
+    { name: "chainId", type: "uint256" },
+  ];
+
+  const checkWallet = async () => {
+    if (!window.ethereum) {
+      throw new Error("No crypto wallet found. Please install it.");
+      return null;
+    }
+    if (!active) {
+      window.alert("Your wallet is not connected!");
+      return null;
+    }
+    return "Connected";
+  };
+
+  const _signingDomain = (contractAddress: string) => {
+    const _domain = {
+      name: SIGNING_DOMAIN_NAME,
+      version: SIGNING_DOMAIN_VERSION,
+      verifyingContract: contractAddress,
+      chainId: SIGNING_DOMAIN_CHAIN_ID,
+    };
+    return _domain;
+  };
+
+  const getSignature = async (domain: any, types: any, voucher: any) => {
+    const signer = provider.getSigner();
+    const signature = await signer._signTypedData(domain, types, voucher);
+    return signature;
+  };
+
+  const createWeightedVector = async (
+    applicant: any,
+    endorser: any,
+    nft: any,
+    data_batch: any,
+    validity: any,
+    types: any,
+    contractAddress: string
+  ) => {
+    const ledgerAccessVector: any = {
+      applicant,
+      endorser,
+      nft,
+      data_batch,
+      validity,
+    };
+    const domain = _signingDomain(contractAddress);
+    const signature = await getSignature(domain, types, ledgerAccessVector);
+    return {
+      ...ledgerAccessVector,
+      signature,
+    };
+  };
+
+  const signMessageV4 = async (dto: any) => {
+    if ((await checkWallet()) == null) {
+      return null;
+    }
+    try {
+      let data = dto.messageDTO;
+
+      const msgPayload = {
+        domain: _domain,
+        message: data,
+        primaryType: "LedgerAccess",
+        types: {
+          EIP712Domain: _domainDataType,
+          ...dto.types,
+        },
+      };
+
+      const signer = provider.getSigner();
+      const address = await signer.getAddress();
+      // Set up variables for message signing
+      let msgParams = JSON.stringify(msgPayload);
+      let obj = await createWeightedVector(
+        data.applicant,
+        data.endorser,
+        data.nft,
+        data.data_batch,
+        data.validity,
+        dto.types,
+        "0x1cc4c6dd7a05eadfe91948ea28f9ec41e54aa159"
+      );
+      const signature: string = obj.signature;
+      // This signGeneratorV4() method is strictly following MetaMask's Sign Type V4 process.
+      // const signature: string = await signGeneratorV4(method, params, address);
+      return {
+        msgPayload,
+        signature,
+        address,
+      };
+    } catch (err) {
+      console.log(err);
+      window.alert(err);
+      return null;
+    }
+  };
+
   const handleFormData = async (e: any) => {
     e.preventDefault();
 
@@ -36,48 +164,66 @@ const SignAccessRequestComponent: NextPage = () => {
       from_date: data.get("from"),
       to_date: data.get("to"),
     };
-    let payload: any = [
-        applicant_dto,
-        endorser_dto,
-        nft_dto,
-        data_batch_dto,
-        signature_validity_dto,
-    ];
-    console.log(payload);
+    let payload: any = {
+      applicant: applicant_dto,
+      endorser: endorser_dto,
+      nft: nft_dto,
+      data_batch: data_batch_dto,
+      validity: signature_validity_dto,
+    };
     // EIP-721 Data standard
     let permissionDTO_v4: any = {
       messageDTO: payload,
       types: {
-        Ledger_Access: [
-          { name: "Applicant", type: "Person[]" },
-          { name: "Endorser", type: "Person[]" },
-          { name: "Product Digital Identity", type: "NFT[]" },
-          { name: "Requested Data Batch For Visibility", type: "Data_Batch[]" },
-          { name: "Signature Validity", type: "Validity[]" },
+        LedgerAccess: [
+          { name: "applicant", type: "Person" },
+          { name: "endorser", type: "Person" },
+          { name: "nft", type: "NFT" },
+          { name: "data_batch", type: "Data_Batch" },
+          { name: "validity", type: "Validity" }
         ],
         Person: [
           { name: "name", type: "string" },
           { name: "org", type: "string" },
-          { name: "wallet", type: "string" },
+          { name: "wallet", type: "string" }
         ],
         NFT: [
           { name: "digital_twin", type: "string" },
           { name: "contract_address", type: "string" },
-          { name: "network", type: "string" },
+          { name: "network", type: "string" }
         ],
         Data_Batch: [
           { name: "mfg_id", type: "uint256" },
           { name: "mfg_lic", type: "string" },
           { name: "hlf_pk", type: "string" },
           { name: "hlf_url", type: "string" },
-          { name: "access_type", type: "string" },
+          { name: "access_type", type: "string" }
         ],
         Validity: [
           { name: "from_date", type: "string" },
-          { name: "to_date", type: "string" },
-        ],
-      },
+          { name: "to_date", type: "string" }
+        ]
+      }
     };
+    const signature_obj = await signMessageV4(permissionDTO_v4);
+
+    if (signature_obj && signature_obj?.signature.length > 0) {
+      /**
+       * The use of '...' in the array is to prevent the data override issue in any index
+       * It keeps the continuity of the index and assign data and a new empty index.
+       *   */
+      setSignaturesFun([...signatures, signature_obj]);
+      /**
+       * ##########--> Optional chaining (?.) <--##########
+       * The optional chaining (?.) operator accesses an object's property or calls a function.
+       * If the object is undefined or null, it returns undefined instead of throwing an error.
+       */
+      window.alert(
+        `*** SIGNING DATA SUCCESSFUL ***\n ===> Signer Address: ${signature_obj?.address} \n ===> Signed Data: ${signature_obj?.signature}`
+      );
+    } else {
+      window.alert("Please, check your wallet and try again.");
+    }
   };
 
   return (
@@ -310,7 +456,7 @@ const SignAccessRequestComponent: NextPage = () => {
                       <input
                         className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                         id="mfg-lic"
-                        name="mgf-lic"
+                        name="mfg-lic"
                         type="text"
                         placeholder="------"
                       />
