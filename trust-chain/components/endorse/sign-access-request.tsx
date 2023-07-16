@@ -5,12 +5,90 @@ import styles from "../../styles/AccessRequestForm.module.css";
 const ContractAddress = require("../../../json-log/deployedContractAddress.json");
 
 const SignAccessRequestComponent: NextPage = () => {
+  const handleFormData = async (e: any) => {
+    e.preventDefault();
+
+    const data = new FormData(e.target);
+
+    let applicant_dto: any = {
+      name: data.get("applicant"),
+      org: data.get("applicant-org"),
+      wallet: data.get("applicant-wallet"),
+    };
+    let endorser_dto: any = {
+      name: data.get("endorser"),
+      org: data.get("endorser-org"),
+      wallet: data.get("endorser-wallet"),
+    };
+    let nft_dto: any = {
+      digital_twin: data.get("nft"),
+      contract_address: data.get("contract"),
+      network: data.get("network"),
+    };
+    let data_batch_dto: any = {
+      mfg_id: Number(data.get("mfg-id")),
+      mfg_lic: data.get("mfg-lic"),
+      hlf_pk: data.get("hlf-pk"),
+      hlf_url: data.get("hlf-url"),
+      access_type: data.get("access-type"),
+    };
+    let signature_validity_dto: any = {
+      from_date: data.get("from"),
+      to_date: data.get("to"),
+    };
+    let payload: any = [
+        applicant_dto,
+        endorser_dto,
+        nft_dto,
+        data_batch_dto,
+        signature_validity_dto,
+    ];
+    console.log(payload);
+    // EIP-721 Data standard
+    let permissionDTO_v4: any = {
+      messageDTO: payload,
+      types: {
+        Ledger_Access: [
+          { name: "Applicant", type: "Person[]" },
+          { name: "Endorser", type: "Person[]" },
+          { name: "Product Digital Identity", type: "NFT[]" },
+          { name: "Requested Data Batch For Visibility", type: "Data_Batch[]" },
+          { name: "Signature Validity", type: "Validity[]" },
+        ],
+        Person: [
+          { name: "name", type: "string" },
+          { name: "org", type: "string" },
+          { name: "wallet", type: "string" },
+        ],
+        NFT: [
+          { name: "digital_twin", type: "string" },
+          { name: "contract_address", type: "string" },
+          { name: "network", type: "string" },
+        ],
+        Data_Batch: [
+          { name: "mfg_id", type: "uint256" },
+          { name: "mfg_lic", type: "string" },
+          { name: "hlf_pk", type: "string" },
+          { name: "hlf_url", type: "string" },
+          { name: "access_type", type: "string" },
+        ],
+        Validity: [
+          { name: "from_date", type: "string" },
+          { name: "to_date", type: "string" },
+        ],
+      },
+    };
+  };
+
   return (
     <div className={styles.container}>
       <main className={styles.main}>
         <div className="flex flex-row flex-wrap justify-center">
           <div className="basis-3/6">
-            <form className="shadow-xl border-double border-4 border-cyan-600 rounded-lg border-x-cyan-100">
+            <form
+              onSubmit={handleFormData}
+              className="shadow-xl border-double border-4 border-cyan-600 rounded-lg border-x-cyan-100"
+            >
               <div className="p-8">
                 <h1 className="capitalize hover:uppercase text-2xl">
                   Pending Request
@@ -146,8 +224,7 @@ const SignAccessRequestComponent: NextPage = () => {
                   <div className="inline-flex items-center justify-center w-full">
                     <hr className="w-64 h-px my-8 bg-gray-200 border-0 dark:bg-gray-700" />
                     <span className="absolute px-3 font-medium text-gray-900 -translate-x-1/2 bg-white left-1/2 dark:text-white dark:bg-gray-900">
-                    Product Digital Identity
-
+                      Product Digital Identity
                     </span>
                   </div>
 
@@ -156,10 +233,10 @@ const SignAccessRequestComponent: NextPage = () => {
                       <b>Digital Twin URL</b>
                     </label>
                     <input
-                        id="nft"
-                        name="nft"
-                        type="url"
-                        placeholder="www.opensea.io"
+                      id="nft"
+                      name="nft"
+                      type="url"
+                      placeholder="www.opensea.io"
                       className="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400
               focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500
               disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none
@@ -209,7 +286,7 @@ const SignAccessRequestComponent: NextPage = () => {
                   <div className="inline-flex items-center justify-center w-full">
                     <hr className="w-64 h-px my-8 bg-gray-200 border-0 dark:bg-gray-700" />
                     <span className="absolute px-3 font-medium text-gray-900 -translate-x-1/2 bg-white left-1/2 dark:text-white dark:bg-gray-900">
-                        Requested Data Batch for Visibility
+                      Requested Data Batch for Visibility
                     </span>
                   </div>
 
@@ -222,7 +299,7 @@ const SignAccessRequestComponent: NextPage = () => {
                         className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
                         id="mfg-id"
                         name="mfg-id"
-                        type="text"
+                        type="number"
                         placeholder="----"
                       />
                     </div>
@@ -285,7 +362,8 @@ const SignAccessRequestComponent: NextPage = () => {
                     />
                   </div>
                   <p className="text-red-500 text-xs italic">
-                    Make sure you want to give access for this exact Product with this URL End-Point.
+                    Make sure you want to give access for this exact Product
+                    with this URL End-Point.
                   </p>
                 </div>
 
@@ -318,7 +396,7 @@ const SignAccessRequestComponent: NextPage = () => {
                   <label>
                     <b>
                       {" "}
-                        End Date <sub>(Valid till)</sub>
+                      End Date <sub>(Valid till)</sub>
                     </b>
                   </label>
                   <input
@@ -334,8 +412,6 @@ const SignAccessRequestComponent: NextPage = () => {
                     required
                   />
                 </div>
-
-
 
                 <hr />
                 <p>
