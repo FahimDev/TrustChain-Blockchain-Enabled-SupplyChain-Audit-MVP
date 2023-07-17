@@ -20,6 +20,7 @@ const SignAccessRequestComponent: NextPage = () => {
   const SIGNING_DOMAIN_NAME = "TrustChain-LedgerAccess";
   const SIGNING_DOMAIN_VERSION = "1";
   const SIGNING_DOMAIN_CHAIN_ID = 5;
+  const CONTRACT_ADDRESS = "0x1cc4c6dd7a05eadfe91948ea28f9ec41e54aa159";
 
   // EIP-721 Data standard
   const _domain = {
@@ -67,8 +68,8 @@ const SignAccessRequestComponent: NextPage = () => {
   const createWeightedVector = async (
     applicant: any,
     endorser: any,
-    nft: any,
-    data_batch: any,
+    NFT: any,
+    dataBatch: any,
     validity: any,
     types: any,
     contractAddress: string
@@ -76,8 +77,8 @@ const SignAccessRequestComponent: NextPage = () => {
     const ledgerAccessVector: any = {
       applicant,
       endorser,
-      nft,
-      data_batch,
+      NFT,
+      dataBatch,
       validity,
     };
     const domain = _signingDomain(contractAddress);
@@ -116,7 +117,7 @@ const SignAccessRequestComponent: NextPage = () => {
         data.data_batch,
         data.validity,
         dto.types,
-        "0x1cc4c6dd7a05eadfe91948ea28f9ec41e54aa159"
+        CONTRACT_ADDRESS
       );
       const signature: string = obj.signature;
       // This signGeneratorV4() method is strictly following MetaMask's Sign Type V4 process.
@@ -137,32 +138,35 @@ const SignAccessRequestComponent: NextPage = () => {
     e.preventDefault();
 
     const data = new FormData(e.target);
+    // Convert to Unix timestamp
+    let valid_from = Math.floor(new Date(data.get("from")).getTime() / 1000);
+    let valid_to = Math.floor(new Date(data.get("to")).getTime() / 1000);
 
     let applicant_dto: any = {
-      name: data.get("applicant"),
-      org: data.get("applicant-org"),
-      wallet: data.get("applicant-wallet"),
+      Name: data.get("applicant"),
+      Organization: data.get("applicant-org"),
+      Wallet: data.get("applicant-wallet"),
     };
     let endorser_dto: any = {
-      name: data.get("endorser"),
-      org: data.get("endorser-org"),
-      wallet: data.get("endorser-wallet"),
+      Name: data.get("endorser"),
+      Organization: data.get("endorser-org"),
+      Wallet: data.get("endorser-wallet"),
     };
     let nft_dto: any = {
-      digital_twin: data.get("nft"),
-      contract_address: data.get("contract"),
-      network: data.get("network"),
+      DigitalTwin: data.get("nft"),
+      Contract: data.get("contract"),
+      Network: data.get("network"),
     };
     let data_batch_dto: any = {
-      mfg_id: Number(data.get("mfg-id")),
-      mfg_lic: data.get("mfg-lic"),
-      hlf_pk: data.get("hlf-pk"),
-      hlf_url: data.get("hlf-url"),
-      access_type: data.get("access-type"),
+      MFG_ID: Number(data.get("mfg-id")),
+      MFG_License: data.get("mfg-lic"),
+      LedgerData_PK: data.get("hlf-pk"),
+      GatewayURL: data.get("hlf-url"),
+      AccessType: data.get("access-type"),
     };
     let signature_validity_dto: any = {
-      from_date: data.get("from"),
-      to_date: data.get("to"),
+      StartDate: valid_from,
+      EndDate: valid_to,
     };
     let payload: any = {
       applicant: applicant_dto,
@@ -178,33 +182,34 @@ const SignAccessRequestComponent: NextPage = () => {
         LedgerAccess: [
           { name: "applicant", type: "Person" },
           { name: "endorser", type: "Person" },
-          { name: "nft", type: "NFT" },
-          { name: "data_batch", type: "Data_Batch" },
-          { name: "validity", type: "Validity" }
+          { name: "NFT", type: "NFT" },
+          { name: "dataBatch", type: "Data_Batch" },
+          { name: "validity", type: "Validity" },
         ],
         Person: [
-          { name: "name", type: "string" },
-          { name: "org", type: "string" },
-          { name: "wallet", type: "string" }
+          { name: "Name", type: "string" },
+          { name: "Organization", type: "string" },
+          { name: "Wallet", type: "address" },
         ],
         NFT: [
-          { name: "digital_twin", type: "string" },
-          { name: "contract_address", type: "string" },
-          { name: "network", type: "string" }
+          { name: "DigitalTwin", type: "string" },
+          { name: "Contract", type: "address" },
+          { name: "Network", type: "string" },
         ],
         Data_Batch: [
-          { name: "mfg_id", type: "uint256" },
-          { name: "mfg_lic", type: "string" },
-          { name: "hlf_pk", type: "string" },
-          { name: "hlf_url", type: "string" },
-          { name: "access_type", type: "string" }
+          { name: "MFG_ID", type: "uint256" },
+          { name: "MFG_License", type: "string" },
+          { name: "LedgerData_PK", type: "string" },
+          { name: "GatewayURL", type: "string" },
+          { name: "AccessType", type: "string" },
         ],
         Validity: [
-          { name: "from_date", type: "string" },
-          { name: "to_date", type: "string" }
-        ]
-      }
+          { name: "StartDate", type: "uint256" },
+          { name: "EndDate", type: "uint256" },
+        ],
+      },
     };
+
     const signature_obj = await signMessageV4(permissionDTO_v4);
 
     if (signature_obj && signature_obj?.signature.length > 0) {
@@ -528,7 +533,7 @@ const SignAccessRequestComponent: NextPage = () => {
                     </b>
                   </label>
                   <input
-                    type="date"
+                    type="datetime-local"
                     placeholder=""
                     name="from"
                     id="from"
@@ -546,7 +551,7 @@ const SignAccessRequestComponent: NextPage = () => {
                     </b>
                   </label>
                   <input
-                    type="date"
+                    type="datetime-local"
                     placeholder=""
                     name="to"
                     id="to"
