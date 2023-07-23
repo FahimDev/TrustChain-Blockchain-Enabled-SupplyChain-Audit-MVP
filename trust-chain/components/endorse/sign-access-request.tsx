@@ -26,7 +26,7 @@ const SignAccessRequestComponent: NextPage = () => {
   const _domain = {
     name: SIGNING_DOMAIN_NAME,
     version: SIGNING_DOMAIN_VERSION,
-    verifyingContract: ContractAddress.genesisContract,
+    verifyingContract: CONTRACT_ADDRESS,
     chainId: SIGNING_DOMAIN_CHAIN_ID,
   };
   // EIP-721 Data standard
@@ -71,21 +71,20 @@ const SignAccessRequestComponent: NextPage = () => {
     NFT: any,
     dataBatch: any,
     validity: any,
-    types: any,
     contractAddress: string
   ) => {
-    const ledgerAccessVector: any = {
+    const LedgerAccess: any = {
       applicant,
       endorser,
       NFT,
       dataBatch,
       validity,
     };
+    let ledgerAccessVector = JSON.stringify(LedgerAccess)
     const domain = _signingDomain(contractAddress);
-    const signature = await getSignature(domain, types, ledgerAccessVector);
     return {
-      ...ledgerAccessVector,
-      signature,
+      domain,
+      LedgerAccess,
     };
   };
 
@@ -109,17 +108,19 @@ const SignAccessRequestComponent: NextPage = () => {
       const signer = provider.getSigner();
       const address = await signer.getAddress();
       // Set up variables for message signing
-      let msgParams = JSON.stringify(msgPayload);
+      // let msgParams = JSON.stringify(msgPayload);
       let obj = await createWeightedVector(
         data.applicant,
         data.endorser,
-        data.nft,
-        data.data_batch,
+        data.NFT,
+        data.dataBatch,
         data.validity,
-        dto.types,
         CONTRACT_ADDRESS
       );
-      const signature: string = obj.signature;
+      const dataPacket: any = obj.LedgerAccess;
+      const domain: any = obj.domain;
+      const signature = await getSignature(domain, dto.types, dataPacket);
+
       // This signGeneratorV4() method is strictly following MetaMask's Sign Type V4 process.
       // const signature: string = await signGeneratorV4(method, params, address);
       return {
@@ -131,6 +132,40 @@ const SignAccessRequestComponent: NextPage = () => {
       console.log(err);
       window.alert(err);
       return null;
+    }
+  };
+
+
+  const postAPI = async (sig: any) => {
+    /***********************************|
+   |        API Integration             |
+   |__________________________________*/
+    let context: any = {
+      dto: sig?.msgPayload,
+      signature: sig?.signature,
+      address: sig?.address,
+    };
+
+    const rawResponse = await fetch("/api/access-request-signature", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(context),
+    });
+    if (rawResponse.status == 200) {
+      window.alert(
+        "Sign Type V4 Verified by MetaMask Method (js) ! Sign saved as JSON File for R&D."
+      );
+    } else if (rawResponse.status == 404) {
+      window.alert("Sign Type V4 is Invalid!");
+    } else if (rawResponse.status == 401) {
+      window.alert("Signature Invalid. Singer Address can not recover!");
+    } else {
+      window.alert(
+        "Something went wrong in Sign Type V4 Verification Error Unknown!"
+      );
     }
   };
 
@@ -171,8 +206,8 @@ const SignAccessRequestComponent: NextPage = () => {
     let payload: any = {
       applicant: applicant_dto,
       endorser: endorser_dto,
-      nft: nft_dto,
-      data_batch: data_batch_dto,
+      NFT: nft_dto,
+      dataBatch: data_batch_dto,
       validity: signature_validity_dto,
     };
     // EIP-721 Data standard
@@ -226,6 +261,7 @@ const SignAccessRequestComponent: NextPage = () => {
       window.alert(
         `*** SIGNING DATA SUCCESSFUL ***\n ===> Signer Address: ${signature_obj?.address} \n ===> Signed Data: ${signature_obj?.signature}`
       );
+      postAPI(signature_obj);
     } else {
       window.alert("Please, check your wallet and try again.");
     }
