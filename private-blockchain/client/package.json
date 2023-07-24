@@ -24,10 +24,14 @@
     "@nestjs/core": "^10.0.0",
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/swagger": "^7.1.1",
+    "@nestjs/typeorm": "^10.0.0",
     "fabric-ca-client": "^2.2.18",
     "fabric-network": "^2.2.18",
+    "mysql2": "^3.5.2",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "sqlite3": "^5.1.6",
+    "typeorm": "^0.3.17"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
