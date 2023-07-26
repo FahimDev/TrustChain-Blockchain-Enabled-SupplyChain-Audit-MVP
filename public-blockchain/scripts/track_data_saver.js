@@ -6,7 +6,7 @@ module.exports = {
     // stringify JSON Object
     //var jsonContent = JSON.stringify(jsonData);
     fs.writeFileSync(
-      "../json-log/deployedContractAddress.json",
+      `../json-log/${key_name}-deployedContractAddress.json`,
       jsonData,
       "utf8",
       function (err) {

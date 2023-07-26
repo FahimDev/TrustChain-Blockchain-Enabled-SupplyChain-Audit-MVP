@@ -56,10 +56,6 @@ contract VerifySignData is EIP712{
 
     struct LedgerAccess {
         Person applicant;
-        // Person endorser;
-        // NFT NFT;
-        // Data_Batch dataBatch;
-        // Validity validity;
         bytes signature;
     }
 
@@ -84,7 +80,7 @@ contract VerifySignData is EIP712{
             _hashTypedDataV4(
                 keccak256(
                     abi.encode(
-                        keccak256("LedgerAccess(Person applicant,Person endorser)Person(string Name,string Organization,address Wallet)"),
+                        keccak256("LedgerAccess(Person applicant)Person(string Name,string Organization,address Wallet)"),
                         hashPerson(ledgerAccess.applicant)
                     )
                 )
