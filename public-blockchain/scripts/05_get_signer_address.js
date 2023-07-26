@@ -1,4 +1,4 @@
-// npx hardhat run scripts/getSigner.js --network goerli
+// npx hardhat run ./scripts/05_get_signer_address.js --network goerli
 const fs = require("fs");
 const { getDeployedPath } = require("./common/file");
 const { getInstance } = require("./common/contract");
@@ -10,7 +10,7 @@ async function main() {
 
   const adminWallet = getWallet();
   const verifyContract = getInstance(
-    ContractAddress.genesisContract,
+    ContractAddress.LedgerAccessEIP712Contract,
     adminWallet
   );
   
