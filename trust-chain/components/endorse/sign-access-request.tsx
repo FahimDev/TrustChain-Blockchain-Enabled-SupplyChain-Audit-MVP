@@ -20,7 +20,7 @@ const SignAccessRequestComponent: NextPage = () => {
   const SIGNING_DOMAIN_NAME = "TrustChain-LedgerAccess";
   const SIGNING_DOMAIN_VERSION = "1";
   const SIGNING_DOMAIN_CHAIN_ID = 5;
-  const CONTRACT_ADDRESS = "0x1cc4c6dd7a05eadfe91948ea28f9ec41e54aa159";
+  const CONTRACT_ADDRESS = "0x5376907626b5e5d6C4ffA8A4E6F641eC778e9dCa";
 
   // EIP-721 Data standard
   const _domain = {
@@ -67,20 +67,11 @@ const SignAccessRequestComponent: NextPage = () => {
 
   const createWeightedVector = async (
     applicant: any,
-    endorser: any,
-    NFT: any,
-    dataBatch: any,
-    validity: any,
     contractAddress: string
   ) => {
     const LedgerAccess: any = {
       applicant,
-      endorser,
-      NFT,
-      dataBatch,
-      validity,
     };
-    let ledgerAccessVector = JSON.stringify(LedgerAccess)
     const domain = _signingDomain(contractAddress);
     return {
       domain,
@@ -111,10 +102,6 @@ const SignAccessRequestComponent: NextPage = () => {
       // let msgParams = JSON.stringify(msgPayload);
       let obj = await createWeightedVector(
         data.applicant,
-        data.endorser,
-        data.NFT,
-        data.dataBatch,
-        data.validity,
         CONTRACT_ADDRESS
       );
       const dataPacket: any = obj.LedgerAccess;
@@ -173,42 +160,14 @@ const SignAccessRequestComponent: NextPage = () => {
     e.preventDefault();
 
     const data = new FormData(e.target);
-    // Convert to Unix timestamp
-    let valid_from = Math.floor(new Date(data.get("from")).getTime() / 1000);
-    let valid_to = Math.floor(new Date(data.get("to")).getTime() / 1000);
 
     let applicant_dto: any = {
       Name: data.get("applicant"),
       Organization: data.get("applicant-org"),
       Wallet: data.get("applicant-wallet"),
     };
-    let endorser_dto: any = {
-      Name: data.get("endorser"),
-      Organization: data.get("endorser-org"),
-      Wallet: data.get("endorser-wallet"),
-    };
-    let nft_dto: any = {
-      DigitalTwin: data.get("nft"),
-      Contract: data.get("contract"),
-      Network: data.get("network"),
-    };
-    let data_batch_dto: any = {
-      MFG_ID: Number(data.get("mfg-id")),
-      MFG_License: data.get("mfg-lic"),
-      LedgerData_PK: data.get("hlf-pk"),
-      GatewayURL: data.get("hlf-url"),
-      AccessType: data.get("access-type"),
-    };
-    let signature_validity_dto: any = {
-      StartDate: valid_from,
-      EndDate: valid_to,
-    };
     let payload: any = {
       applicant: applicant_dto,
-      endorser: endorser_dto,
-      NFT: nft_dto,
-      dataBatch: data_batch_dto,
-      validity: signature_validity_dto,
     };
     // EIP-721 Data standard
     let permissionDTO_v4: any = {
@@ -216,31 +175,11 @@ const SignAccessRequestComponent: NextPage = () => {
       types: {
         LedgerAccess: [
           { name: "applicant", type: "Person" },
-          { name: "endorser", type: "Person" },
-          { name: "NFT", type: "NFT" },
-          { name: "dataBatch", type: "Data_Batch" },
-          { name: "validity", type: "Validity" },
         ],
         Person: [
           { name: "Name", type: "string" },
           { name: "Organization", type: "string" },
           { name: "Wallet", type: "address" },
-        ],
-        NFT: [
-          { name: "DigitalTwin", type: "string" },
-          { name: "Contract", type: "address" },
-          { name: "Network", type: "string" },
-        ],
-        Data_Batch: [
-          { name: "MFG_ID", type: "uint256" },
-          { name: "MFG_License", type: "string" },
-          { name: "LedgerData_PK", type: "string" },
-          { name: "GatewayURL", type: "string" },
-          { name: "AccessType", type: "string" },
-        ],
-        Validity: [
-          { name: "StartDate", type: "uint256" },
-          { name: "EndDate", type: "uint256" },
         ],
       },
     };
