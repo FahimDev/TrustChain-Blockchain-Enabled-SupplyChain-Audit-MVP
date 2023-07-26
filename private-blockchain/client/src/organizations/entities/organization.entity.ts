@@ -19,6 +19,9 @@ export class Organization {
   @Column()
   type: string;
 
+  @Column()
+  address: string;
+
   @OneToMany(() => User, (user) => user.organization)
   users: User[];
 

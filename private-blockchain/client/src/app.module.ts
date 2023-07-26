@@ -11,7 +11,6 @@ import { UsersModule } from './users/users.module';
     TypeOrmModule.forRoot({
       type: 'sqlite',
       database: 'trustchain_hlf',
-      entities: [],
       synchronize: true,
       autoLoadEntities: true
     }),
