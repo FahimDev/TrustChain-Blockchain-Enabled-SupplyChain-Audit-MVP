@@ -598,5 +598,10 @@ testeth
 node_modules
 bin_output
 logs
+
 public-blockchain/artifacts/
 public-blockchain/cache/
+private-blockchain/network/organizations
+private-blockchain/network/chaincode/log.txt
+private-blockchain/network/chaincode/trustchain.tar.gz
+private-blockchain/network/channel/log.txt
