@@ -5,7 +5,7 @@ import { ethers } from "ethers";
 import { useEffect, useRef, useState } from "react";
 import { useWeb3React } from "@web3-react/core";
 import styles from "../../styles/AccessRequestForm.module.css";
-const ContractAddress = require("../../../json-log/deployedContractAddress.json");
+const ContractAddress = require("../../../json-log/LedgerAccessEIP712Contract-deployedContractAddress.json");
 
 const SignAccessRequestComponent: NextPage = () => {
   /**
@@ -20,7 +20,7 @@ const SignAccessRequestComponent: NextPage = () => {
   const SIGNING_DOMAIN_NAME = "TrustChain-LedgerAccess";
   const SIGNING_DOMAIN_VERSION = "1";
   const SIGNING_DOMAIN_CHAIN_ID = 5;
-  const CONTRACT_ADDRESS = "0x5376907626b5e5d6C4ffA8A4E6F641eC778e9dCa";
+  const CONTRACT_ADDRESS = ContractAddress.LedgerAccessEIP712Contract;
 
   // EIP-721 Data standard
   const _domain = {
@@ -69,6 +69,8 @@ const SignAccessRequestComponent: NextPage = () => {
     applicant: any,
     contractAddress: string
   ) => {
+    console.log("FLAG MSTK")
+    console.log(applicant)
     const LedgerAccess: any = {
       applicant,
     };
@@ -79,10 +81,51 @@ const SignAccessRequestComponent: NextPage = () => {
     };
   };
 
+  const signGeneratorV4 = async (
+    method: string,
+    params: any[],
+    address: string
+  ) => {
+    console.log("***")
+    // Send signature request
+    let signedMessage: string = "";
+    let sigObj : any = {}
+    await window.ethereum.sendAsync(
+      {
+        method,
+        params,
+        from: address,
+      },
+      function (err: Error, result: any) {
+        if (err) {
+          window.alert(err.message);
+          return console.log(err);
+        }
+        // Store retrieved signature result
+        signedMessage = result.result;
+        const signature = result.result.substring(2);
+        const r = "0x" + signature.substring(0, 64);
+        const s = "0x" + signature.substring(64, 128);
+        const v = parseInt(signature.substring(128, 130), 16);
+        // The signature is now comprised of r, s, and v.z
+        sigObj = {
+          signedMessage,
+          signature,
+          r,
+          s,
+          v
+        }
+      }
+    );
+    await delay(7000);
+    return sigObj;
+  };
+
   const signMessageV4 = async (dto: any) => {
     if ((await checkWallet()) == null) {
       return null;
     }
+    console.log("**")
     try {
       let data = dto.messageDTO;
 
@@ -99,17 +142,24 @@ const SignAccessRequestComponent: NextPage = () => {
       const signer = provider.getSigner();
       const address = await signer.getAddress();
       // Set up variables for message signing
-      // let msgParams = JSON.stringify(msgPayload);
+      let msgParams = JSON.stringify(msgPayload);
+      console.log("*==>",msgParams);
+      var params = [address, msgParams];
+      var method = "eth_signTypedData_v3";
+
       let obj = await createWeightedVector(
         data.applicant,
         CONTRACT_ADDRESS
       );
       const dataPacket: any = obj.LedgerAccess;
       const domain: any = obj.domain;
-      const signature = await getSignature(domain, dto.types, dataPacket);
+      // const signature = await getSignature(domain, dto.types, dataPacket);
 
       // This signGeneratorV4() method is strictly following MetaMask's Sign Type V4 process.
-      // const signature: string = await signGeneratorV4(method, params, address);
+      const sigObj: any = await signGeneratorV4(method, params, address);
+      console.log("Signature Output: ", sigObj)
+      const signature: string = sigObj.signature
+      console.log("==>",signature);
       return {
         msgPayload,
         signature,
@@ -160,11 +210,9 @@ const SignAccessRequestComponent: NextPage = () => {
     e.preventDefault();
 
     const data = new FormData(e.target);
-
     let applicant_dto: any = {
       Name: data.get("applicant"),
       Organization: data.get("applicant-org"),
-      Wallet: data.get("applicant-wallet"),
     };
     let payload: any = {
       applicant: applicant_dto,
@@ -179,10 +227,10 @@ const SignAccessRequestComponent: NextPage = () => {
         Person: [
           { name: "Name", type: "string" },
           { name: "Organization", type: "string" },
-          { name: "Wallet", type: "address" },
         ],
       },
     };
+    console.log("*")
 
     const signature_obj = await signMessageV4(permissionDTO_v4);
 
@@ -568,13 +616,13 @@ const SignAccessRequestComponent: NextPage = () => {
                       <a
                         href={
                           "https://goerli.etherscan.io/address/" +
-                          ContractAddress.genesisContract +
+                          ContractAddress.LedgerAccessEIP712Contract +
                           "#code"
                         }
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        {ContractAddress.genesisContract}{" "}
+                        {ContractAddress.LedgerAccessEIP712Contract}{" "}
                       </a>
                       <span className="sr-only">Verified Smart Contract</span>
                     </span>

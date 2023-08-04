@@ -15,7 +15,7 @@ const { ethers } = require("hardhat");
 async function main() {
 
   // Ref: https://docs.openzeppelin.com/learn/deploying-and-interacting
-  const SignVerifyContract = await ethers.getContractFactory("VerifySignData");
+  const SignVerifyContract = await ethers.getContractFactory("VerifyEIP712");
 
   // Hardhat doesn’t keep track of your deployed contracts.
   // We displayed the deployed address in our script
