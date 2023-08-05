@@ -145,7 +145,7 @@ const SignAccessRequestComponent: NextPage = () => {
       let msgParams = JSON.stringify(msgPayload);
       console.log("*==>",msgParams);
       var params = [address, msgParams];
-      var method = "eth_signTypedData_v3";
+      var method = "eth_signTypedData_v4";
 
       let obj = await createWeightedVector(
         data.applicant,
@@ -158,7 +158,7 @@ const SignAccessRequestComponent: NextPage = () => {
       // This signGeneratorV4() method is strictly following MetaMask's Sign Type V4 process.
       const sigObj: any = await signGeneratorV4(method, params, address);
       console.log("Signature Output: ", sigObj)
-      const signature: string = sigObj.signature
+      const signature: string = sigObj.signedMessage
       console.log("==>",signature);
       return {
         msgPayload,

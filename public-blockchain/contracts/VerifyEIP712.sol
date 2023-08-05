@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol";
 
 // https://medium.com/coinmonks/convert-solidity-code-to-uml-flow-diagrams-3a5cd412177
 // Important: https://gist.github.com/markodayan/e05f524b915f129c4f8500df816a369b

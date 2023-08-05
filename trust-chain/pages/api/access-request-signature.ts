@@ -93,6 +93,18 @@ export default async function createMNO(
     const v = parseInt(tempSign.substring(128, 130), 16);
     // Solution Ref: https://github.com/ethers-io/ethers.js/issues/2595
 
+    console.log(signature)
+    console.log(dto)
+    let sample = JSON.stringify(dto)
+    console.log(JSON.parse(sample))
+
+    let restored = recoverTypedSignature({
+      signature,
+      version: SignTypedDataVersion.V4,
+      data: dto as any,
+    });
+    console.log(restored)
+
     // Even if the sign is invalid at MetaMask's Default Method we will store the signature for further investigation.
     signV4Saver(address, { signature: signature, message: dto.message });
 
