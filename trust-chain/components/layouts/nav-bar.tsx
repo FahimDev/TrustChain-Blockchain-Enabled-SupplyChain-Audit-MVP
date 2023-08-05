@@ -205,13 +205,13 @@ const NavBar: NextPage = () => {
           )}
 
           <li>
-            <a href="/mno/create-mno">
+            <a href="/endorsing/sign-access-request">
               <i className="bx">
                 <FontAwesomeIcon icon={faTowerCell} />
               </i>
-              <span className="links_name">MNO</span>
+              <span className="links_name">Sign Access Request</span>
             </a>
-            <span className="tooltip">Mobile Network Operator</span>
+            <span className="tooltip">Sign Access Request EIP-712</span>
           </li>
           <li>
             <a href="#">
