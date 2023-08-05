@@ -20,7 +20,7 @@ const SignAccessRequestComponent: NextPage = () => {
   const SIGNING_DOMAIN_NAME = "TrustChain-LedgerAccess";
   const SIGNING_DOMAIN_VERSION = "1";
   const SIGNING_DOMAIN_CHAIN_ID = 5;
-  const CONTRACT_ADDRESS = "0x1cc4c6dd7a05eadfe91948ea28f9ec41e54aa159";
+  const CONTRACT_ADDRESS = ContractAddress.DigitalTwinContract;
 
   // EIP-721 Data standard
   const _domain = {
@@ -59,34 +59,33 @@ const SignAccessRequestComponent: NextPage = () => {
     return _domain;
   };
 
-  const getSignature = async (domain: any, types: any, voucher: any) => {
-    const signer = provider.getSigner();
-    const signature = await signer._signTypedData(domain, types, voucher);
-    return signature;
+
+  const signGeneratorV4 = async (
+    method: string,
+    params: any[],
+    address: string
+  ) => {
+    // Send signature request
+    let signedMessage: string = "";
+    await window.ethereum.sendAsync(
+      {
+        method,
+        params,
+        from: address,
+      },
+      function (err: Error, result: any) {
+        if (err) {
+          window.alert(err.message);
+          return console.log(err);
+        }
+        // Store retrieved signature result
+        signedMessage = result.result;
+      }
+    );
+    await delay(7000);
+    return signedMessage;
   };
 
-  const createWeightedVector = async (
-    applicant: any,
-    endorser: any,
-    NFT: any,
-    dataBatch: any,
-    validity: any,
-    contractAddress: string
-  ) => {
-    const LedgerAccess: any = {
-      applicant,
-      endorser,
-      NFT,
-      dataBatch,
-      validity,
-    };
-    let ledgerAccessVector = JSON.stringify(LedgerAccess)
-    const domain = _signingDomain(contractAddress);
-    return {
-      domain,
-      LedgerAccess,
-    };
-  };
 
   const signMessageV4 = async (dto: any) => {
     if ((await checkWallet()) == null) {
@@ -105,24 +104,15 @@ const SignAccessRequestComponent: NextPage = () => {
         },
       };
 
+      // Set up variables for message signing
+      let msgParams = JSON.stringify(msgPayload);
       const signer = provider.getSigner();
       const address = await signer.getAddress();
-      // Set up variables for message signing
-      // let msgParams = JSON.stringify(msgPayload);
-      let obj = await createWeightedVector(
-        data.applicant,
-        data.endorser,
-        data.NFT,
-        data.dataBatch,
-        data.validity,
-        CONTRACT_ADDRESS
-      );
-      const dataPacket: any = obj.LedgerAccess;
-      const domain: any = obj.domain;
-      const signature = await getSignature(domain, dto.types, dataPacket);
+      var params = [address, msgParams];
+      var method = "eth_signTypedData_v4";
 
       // This signGeneratorV4() method is strictly following MetaMask's Sign Type V4 process.
-      // const signature: string = await signGeneratorV4(method, params, address);
+      const signature: string = await signGeneratorV4(method, params, address);
       return {
         msgPayload,
         signature,
@@ -629,13 +619,13 @@ const SignAccessRequestComponent: NextPage = () => {
                       <a
                         href={
                           "https://goerli.etherscan.io/address/" +
-                          ContractAddress.genesisContract +
+                          ContractAddress.DigitalTwinContract +
                           "#code"
                         }
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        {ContractAddress.genesisContract}{" "}
+                        {ContractAddress.DigitalTwinContract}{" "}
                       </a>
                       <span className="sr-only">Verified Smart Contract</span>
                     </span>

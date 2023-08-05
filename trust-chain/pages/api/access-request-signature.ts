@@ -8,7 +8,7 @@ import fs from "fs"; // JSON FILE SAVING
 
 /**
  * @swagger
- * /api/create-mno:
+ * /api/access-request-signature:
  *   post:
  *     tags: [Ledger Access Request | EIP-712]
  *     description: Returns  Sign Data Object
@@ -86,23 +86,40 @@ export default async function createMNO(
    |        Sign Typed Data v4          |
    |__________________________________*/
 
-    // split signature
+    // The signature is now comprised of r, s, and v.z
     const tempSign = signature.substring(2);
-    const r = "0x" + tempSign.substring(0, 64);
-    const s = "0x" + tempSign.substring(64, 128);
-    const v = parseInt(tempSign.substring(128, 130), 16);
+    const r = "0x" + signature.substring(0, 64);
+    const s = "0x" + signature.substring(64, 128);
+    const v = parseInt(signature.substring(128, 130), 16);
     // Solution Ref: https://github.com/ethers-io/ethers.js/issues/2595
 
+    let restoredAddress = recoverTypedSignature({
+      signature,
+      version: SignTypedDataVersion.V4,
+      data: dto as any,
+    });
+
+    if (restoredAddress.toLowerCase() !== address.toLowerCase()) {
+      res.statusCode = 401;
+      res.end("Invalid");
+      // Even if the sign is invalid at MetaMask's Default Method we will store the signature for further investigation.
+      signV4Saver(address, { signature: signature, message: dto.message });
+      return;
+    }
+
     // Even if the sign is invalid at MetaMask's Default Method we will store the signature for further investigation.
-    signV4Saver(address, { signature: signature, message: dto.message });
+    signV4Saver(address, { signature: signature, message: dto.message, split: { r, s, v } });
+
+    const nowDate: Date = new Date();
+    const date_time = nowDate.toISOString().replace(/[:.]/g, ''); // Removes colons and dots
 
     res.status(200).json({
-      id: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      id: `${address}-${date_time}-signTypeDataV4`,
       address: address,
       signedData: signature,
       splitSignature: JSON.stringify({ r, s, v }),
       message: JSON.stringify(dto),
-      recordCreatedAt: "2022-10-16T09:45:10.276Z",
+      recordCreatedAt: date_time,
     });
   } catch (err) {
     res.statusCode = 400;
@@ -117,6 +134,7 @@ const signV4Saver = async (signerAddress: string, signTypeV4Payload: any) => {
     signerAddress: signerAddress,
     signature: signTypeV4Payload.signature,
     message: signTypeV4Payload.message,
+    split: signTypeV4Payload.split,
   };
   let jsonDataStr = JSON.stringify(jsonData);
   const nowDate: Date = new Date();
@@ -135,23 +153,4 @@ const signV4Saver = async (signerAddress: string, signTypeV4Payload: any) => {
   );
 };
 
-function stringifyValues(obj: Record<string, any>): Record<string, any> {
-  const result: Record<string, any> = {};
-
-  for (const key in obj) {
-    if (Object.prototype.hasOwnProperty.call(obj, key)) {
-      const value = obj[key];
-
-      if (typeof value === 'object' && value !== null) {
-        // If the value is an object, recursively stringify its values
-        result[key] = stringifyValues(value);
-      } else {
-        // Convert the value to a string using toString()
-        result[key] = value.toString();
-      }
-    }
-  }
-
-  return result;
-}
 
