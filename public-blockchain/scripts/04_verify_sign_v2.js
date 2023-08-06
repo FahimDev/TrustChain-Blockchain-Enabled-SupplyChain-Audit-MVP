@@ -9,7 +9,7 @@ const TestSignV4 = require("../../json-log/TargetSignVerification.json");
 async function main() {
 
   let message = TestSignV4.message;
-  message.signature = signedMessage
+  message.signature = TestSignV4.signature;
 
   const adminWallet = getWallet();
   const verifyContract = getInstance(

@@ -66,13 +66,13 @@ const SignAccessRequestComponent: NextPage = () => {
   };
 
   const createWeightedVector = async (
-    applicant: any,
+    bsId: any,
     contractAddress: string
   ) => {
     console.log("FLAG MSTK")
-    console.log(applicant)
+    console.log(bsId)
     const LedgerAccess: any = {
-      applicant,
+      bsId,
     };
     const domain = _signingDomain(contractAddress);
     return {
@@ -148,17 +148,17 @@ const SignAccessRequestComponent: NextPage = () => {
       var method = "eth_signTypedData_v4";
 
       let obj = await createWeightedVector(
-        data.applicant,
+        256,
         CONTRACT_ADDRESS
       );
       const dataPacket: any = obj.LedgerAccess;
       const domain: any = obj.domain;
-      // const signature = await getSignature(domain, dto.types, dataPacket);
+      const signature = await getSignature(domain, dto.types, dataPacket);
 
       // This signGeneratorV4() method is strictly following MetaMask's Sign Type V4 process.
-      const sigObj: any = await signGeneratorV4(method, params, address);
-      console.log("Signature Output: ", sigObj)
-      const signature: string = sigObj.signedMessage
+      // const sigObj: any = await signGeneratorV4(method, params, address);
+      // console.log("Signature Output: ", sigObj)
+      // const signature: string = sigObj.signedMessage
       console.log("==>",signature);
       return {
         msgPayload,
