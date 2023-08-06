@@ -215,19 +215,19 @@ const SignAccessRequestComponent: NextPage = () => {
       Organization: data.get("applicant-org"),
     };
     let payload: any = {
-      applicant: applicant_dto,
+      bsId: 256,
     };
     // EIP-721 Data standard
     let permissionDTO_v4: any = {
       messageDTO: payload,
       types: {
         LedgerAccess: [
-          { name: "applicant", type: "Person" },
+          { name: "bsId", type: "uint256" },
         ],
-        Person: [
-          { name: "Name", type: "string" },
-          { name: "Organization", type: "string" },
-        ],
+        // Person: [
+        //   { name: "Name", type: "string" },
+        //   { name: "Organization", type: "string" },
+        // ],
       },
     };
     console.log("*")
